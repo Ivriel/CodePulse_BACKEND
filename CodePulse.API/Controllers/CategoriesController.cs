@@ -18,7 +18,7 @@ namespace CodePulse.API.Controllers
             this.categoryRepository = categoryRepository;
         }
 
-        // 
+        
         [HttpPost]
         [Authorize(Roles = "Writer")]
         public async Task<IActionResult> CreateCategory(CreateCategoryRequestDto request)
@@ -45,9 +45,16 @@ namespace CodePulse.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> getAllCategories()
+        public async Task<IActionResult> GetAllCategories(
+            [FromQuery] string? query, 
+            [FromQuery] string? sortBy, 
+            [FromQuery] string? sortDirection,
+            [FromQuery] int? pageNumber,
+            [FromQuery] int? pageSize
+            )
         {
-            var categories = await categoryRepository.GetAllAsync();
+            var categories = await categoryRepository.GetAllAsync(query,sortBy,sortDirection,pageNumber,pageSize);
+                
             // Map domain model ke DTO
             var response = new List<CategoryDto>();
 
@@ -138,6 +145,15 @@ namespace CodePulse.API.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("count")]
+        public async Task<IActionResult> GetCategoriesTotal()
+        {
+            var count = await categoryRepository.GetCount();
+
+            return Ok(count);
         }
     }
 }
